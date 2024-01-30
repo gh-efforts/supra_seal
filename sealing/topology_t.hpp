@@ -97,8 +97,7 @@ public:
   int pc2_reader;
   int pc2_hasher;
   int pc2_hasher_cpu;
-  int pc2_writer;
-  int pc2_writer_cores;
+  std::vector<int> pc2_writer_cores;
   int pc2_sleep_time;
   int pc2_qpair;
   int c1_reader;
@@ -164,13 +163,17 @@ public:
       pc2_reader       = root["topology"]["pc2"]["reader"];
       pc2_hasher       = root["topology"]["pc2"]["hasher"];
       pc2_hasher_cpu   = root["topology"]["pc2"]["hasher_cpu"];
-      pc2_writer       = root["topology"]["pc2"]["writer"];
-      pc2_writer_cores = root["topology"]["pc2"]["writer_cores"];
       pc2_sleep_time   = root["topology"]["pc2"]["sleep_time"];
       pc2_qpair        = root["topology"]["pc2"]["qpair"];
       c1_reader        = root["topology"]["c1"]["reader"];
       c1_sleep_time    = root["topology"]["c1"]["sleep_time"];
       c1_qpair         = root["topology"]["c1"]["qpair"];
+
+      const Setting& writer_cores = root["topology"]["pc2"]["writer_cores"];
+
+      for (int i = 0; i < writer_cores.getLength(); i++) {
+        pc2_writer_cores.push_back(writer_cores[i]);
+      }
     } catch(const SettingNotFoundException &nfex) {
       // Ignore.
     }

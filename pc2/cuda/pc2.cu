@@ -582,12 +582,14 @@ void pc2_t<C>::hash_gpu(size_t partition) {
 
   // Start a thread to process writes to disk
   std::atomic<bool> terminate = false;
-  const size_t num_writers = (size_t)this->topology.pc2_writer_cores;
+  std::vector<int>* writers = &this->topology.pc2_writer_cores;
+  size_t num_writers = writers->size();
   thread_pool_t pool(num_writers);
   std::atomic<int> disk_writer_done(num_writers);
   for (size_t i = 0; i < num_writers; i++) {
-    pool.spawn([this, &terminate, &disk_writer_done, i]() {
-      process_writes(this->topology.pc2_writer + i, batch_size,
+    int bind_core = (*writers)[i];
+    pool.spawn([this, &terminate, &disk_writer_done, bind_core]() {
+      process_writes(bind_core, batch_size,
                      host_buf_to_disk, host_buf_pool_full,
                      terminate, disk_writer_done);
     });
